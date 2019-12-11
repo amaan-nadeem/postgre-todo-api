@@ -61,4 +61,23 @@ describe("Updating todo", () => {
     })
 });
 
+describe("Deleting todo", () => {
+    it("todo deleted in database", async done => {       
+        const correctResponse = await request.delete('/api/v1/delete-todo/4')
+        expect(correctResponse.status).toBe(200);
+        expect(correctResponse.body).toBeDefined();
+                  
+        done();
+    })
+    it("Accessing wrong route", async done => {
+        const response = await request.put('/api/v1/delete-tod')
+        expect(response.status).toBe(404);
+        done();
+    })
+    it("Id attached to api is invalid", async done => {
+        const response = await request.delete('/api/v1/delete-todo/7')
+        expect(response.status).toBe(400);
+        done();
+    })
+});
 

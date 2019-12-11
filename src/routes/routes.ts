@@ -13,7 +13,10 @@ const ApiParamsSchema = Joi.object({
 });
 
 routes.post("/create-todo", async (req: Request, res: Response) => {
-  const { isCompleted, title, description } = req.body;
+  let { isCompleted, title, description } = req.body;
+  if(!isCompleted){
+    isCompleted = false;
+  }
   const { error } = ApiParamsSchema.validate({
     title,
     description,
@@ -113,6 +116,41 @@ routes.put("/update-todo/:id", async (req: Request, res: Response) => {
     });
   }
 });
+
+routes.delete("/delete-todo/:id", async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Todo Id"
+    })
+  }
+  const id = parseInt(req.params.id);
+  try {
+      const deleteTodo = await client.query('DELETE FROM todos WHERE id = $1', [id]);
+      if(deleteTodo.rowCount < 1){
+          return res.status(400).json({
+              success: false,
+              message: "No Todo found against this id"
+          })
+      }
+      return res.status(200).json({
+          success: true,
+          message: "Todo deleted",
+          deletedTodo: deleteTodo
+      })
+  } catch (error) {
+      return res.status(500).json({
+          success: false,
+          message: "Internal Server Error"
+      })
+  }
+});
+
+// @route GET 
+// @desc fetching todos
+// @access public
 
 routes.get("/get-todos", async (req: Request, res: Response) => {
   try {
